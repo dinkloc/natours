@@ -12,8 +12,6 @@ exports.checkID = (req, res, next, val ) => {
     }
     next();
 }
-
-
 // Check body before create
 exports.checkBody = (req, res, next) => {
     if (!req.body.name || !req.body.price) {
@@ -24,7 +22,6 @@ exports.checkBody = (req, res, next) => {
     }
     next();
 }
-
 exports.getAllTours = (req, res) => {
     res.status(200).json({
         status: 'success', 

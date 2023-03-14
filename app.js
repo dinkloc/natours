@@ -12,10 +12,9 @@ app.set('view engine', 'pug');
 app.use(morgan('dev')); // Hiển thị GET url status 
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`))
-app.use((req, res, next) => {
-    console.log('Hello from the middleware ');
-    next();
-});
+
+
+
 app.use((req, res, next) => {
     req.requestTime = new Date().toISOString();
     next();
@@ -25,6 +24,14 @@ app.use((req, res, next) => {
 app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+
+app.all('*', (req, res, next) => {
+    res.status(404).json({
+        status: 'fail',
+        message: `Can't find ${req.originalUrl} on this server!`
+    });
+    next();
+});
 
 // 4 Start Server
 module.exports = app;

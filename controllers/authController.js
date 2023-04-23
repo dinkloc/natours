@@ -14,39 +14,30 @@ const signToken = id => {
     });
   };
   
+
 const createSendToken = (user, statusCode, res) => {
     const token = signToken(user._id);
+    const cookieOptions = {
+        expires: new Date(
+        Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+        ),
+        httpOnly: true
+    };
+    if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+
+    res.cookie('jwt', token, cookieOptions);
+
+    // Remove password from output
+    user.password = undefined;
+
     res.status(statusCode).json({
         status: 'success',
         token,
         data: {
-            user
+        user
         }
     });
 };
-// const createSendToken = (user, statusCode, res) => {
-//     const token = signToken(user._id);
-//     const cookieOptions = {
-//         expires: new Date(
-//         Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
-//         ),
-//         httpOnly: true
-//     };
-//     if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
-
-//     res.cookie('jwt', token, cookieOptions);
-
-//     // Remove password from output
-//     user.password = undefined;
-
-//     res.status(statusCode).json({
-//         status: 'success',
-//         token,
-//         data: {
-//         user
-//         }
-//     });
-// };
 
 
 
@@ -145,7 +136,7 @@ exports.forgotPassword = catchAsync(async(req, res, next) => {
     await user.save({validateBeforeSave: false});
 
     const resetURL = `${req.protocol}: //${req.get('host')}/api/v1/user/resetPassword/${resetToken}`;
-    const message = `Forgot your password? Submid a Patch request with your new password and passwordconfirm to : ${resetURL}.\n If you didnt forget your password, please ignore this email!`;
+    const message = `Forgot your password? Submit a Patch request with your new password and passwordConfirm to : ${resetURL}.\n If you didn't forget your password, please ignore this email!`;
     try {
         await sendEmail({
             email: user.email,
